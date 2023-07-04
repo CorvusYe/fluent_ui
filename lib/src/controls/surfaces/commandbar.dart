@@ -513,6 +513,9 @@ class CommandBarButton extends CommandBarItem {
   /// {@macro flutter.widgets.Focus.autofocus}
   final bool autofocus;
 
+  /// Whether this button is currently selected
+  final bool selected;
+
   /// Creates a command bar button
   const CommandBarButton({
     super.key,
@@ -524,6 +527,7 @@ class CommandBarButton extends CommandBarItem {
     this.onLongPress,
     this.focusNode,
     this.autofocus = false,
+    this.selected = false,
   });
 
   @override
@@ -543,6 +547,12 @@ class CommandBarButton extends CommandBarItem {
           style: ButtonStyle(
             backgroundColor: ButtonState.resolveWith((states) {
               final theme = FluentTheme.of(context);
+              if (selected) {
+                return ButtonThemeData.buttonColor(
+                  context,
+                  states,
+                );
+              }
               return ButtonThemeData.uncheckedInputColor(
                 theme,
                 states,

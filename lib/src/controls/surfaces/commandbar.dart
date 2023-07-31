@@ -157,7 +157,8 @@ class CommandBar extends StatefulWidget {
   final bool _isExpanded;
 
   /// The direction of the command bar. The default is [Axis.horizontal].
-  /// If [direction] is [Axis.vertical], we recomment setting [isCompact] to true.
+  /// If [direction] is [Axis.vertical], we recomment setting [isCompact] to true,
+  /// and [crossAxisAlignment] to [CrossAxisAlignment.start].
   final Axis direction;
 
   /// Creates a command bar.
@@ -170,11 +171,15 @@ class CommandBar extends StatefulWidget {
     this.compactBreakpointWidth,
     bool? isCompact,
     this.mainAxisAlignment = MainAxisAlignment.start,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
+    CrossAxisAlignment? crossAxisAlignment,
     this.overflowItemAlignment = MainAxisAlignment.end,
     this.direction = Axis.horizontal,
   })  : _isExpanded = overflowBehavior != CommandBarOverflowBehavior.noWrap,
-        isCompact = isCompact ?? direction == Axis.vertical;
+        isCompact = isCompact ?? direction == Axis.vertical,
+        crossAxisAlignment = crossAxisAlignment ??
+            (direction == Axis.vertical
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center);
 
   @override
   State<CommandBar> createState() => _CommandBarState();
@@ -363,7 +368,7 @@ class _CommandBarState extends State<CommandBar> {
               if (overflowWidget != null) overflowWidget,
             ],
           ),
-        );
+        ).hideVerticalScrollbar(context);
         break;
     }
     if (widget._isExpanded) {
@@ -374,6 +379,9 @@ class _CommandBarState extends State<CommandBar> {
 
   @override
   Widget build(BuildContext context) {
+    assert(debugCheckHasFluentTheme(context));
+    assert(debugCheckHasDirectionality(context));
+
     if (widget.compactBreakpointWidth == null) {
       final displayMode = (widget.isCompact ?? false)
           ? CommandBarItemDisplayMode.inPrimaryCompact
@@ -532,6 +540,7 @@ class CommandBarButton extends CommandBarItem {
 
   @override
   Widget build(BuildContext context, CommandBarItemDisplayMode displayMode) {
+    assert(debugCheckHasFluentTheme(context));
     switch (displayMode) {
       case CommandBarItemDisplayMode.inPrimary:
       case CommandBarItemDisplayMode.inPrimaryCompact:

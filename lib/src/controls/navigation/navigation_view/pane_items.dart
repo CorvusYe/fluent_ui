@@ -596,12 +596,17 @@ class PaneItemExpander extends PaneItem {
     super.tileColor,
     super.selectedTileColor,
     super.onTap,
+    this.initiallyExpanded = false,
   }) : assert(
           items.any((item) => item is PaneItemExpander) == false,
           'There can not be nested PaneItemExpanders',
         );
 
   final List<NavigationPaneItem> items;
+
+  /// Whether the item is initially expanded. Defaults to false
+  final bool initiallyExpanded;
+
   static const kDefaultTrailing = Icon(FluentIcons.chevron_down, size: 8.0);
 
   @override
@@ -632,6 +637,7 @@ class PaneItemExpander extends PaneItem {
         selected: selected,
         onPressed: onPressed,
         onItemPressed: onItemPressed,
+        initiallyExpanded: initiallyExpanded,
       ),
     );
   }
@@ -647,6 +653,7 @@ class _PaneItemExpander extends StatefulWidget {
     required this.selected,
     required this.onPressed,
     required this.onItemPressed,
+    required this.initiallyExpanded,
   });
 
   final PaneItem item;
@@ -656,6 +663,7 @@ class _PaneItemExpander extends StatefulWidget {
   final bool selected;
   final VoidCallback? onPressed;
   final ValueChanged<PaneItem>? onItemPressed;
+  final bool initiallyExpanded;
 
   static const leadingPadding = EdgeInsetsDirectional.only(start: 28.0);
 
@@ -666,9 +674,7 @@ class _PaneItemExpander extends StatefulWidget {
 class __PaneItemExpanderState extends State<_PaneItemExpander>
     with SingleTickerProviderStateMixin {
   final flyoutController = FlyoutController();
-  bool get useFlyout {
-    return widget.displayMode != PaneDisplayMode.open;
-  }
+  bool get useFlyout => widget.displayMode != PaneDisplayMode.open;
 
   late bool _open;
   late final AnimationController controller = AnimationController(
@@ -683,7 +689,7 @@ class __PaneItemExpanderState extends State<_PaneItemExpander>
           context,
           identifier: 'paneItemExpanderOpen$index',
         ) as bool? ??
-        false;
+        widget.initiallyExpanded;
 
     if (_open) {
       controller.value = 1;
@@ -737,6 +743,7 @@ class __PaneItemExpanderState extends State<_PaneItemExpander>
                     item: item,
                     onPressed: () {
                       widget.onItemPressed?.call(item);
+                      item.onTap?.call();
                       Navigator.pop(context);
                     },
                     isSelected: body.pane!.isSelected(item),
@@ -915,6 +922,7 @@ class _PaneItemExpanderMenuItem extends MenuFlyoutItemBase {
 
   @override
   Widget build(BuildContext context) {
+    assert(debugCheckHasFluentTheme(context));
     final theme = FluentTheme.of(context);
     final size = Flyout.of(context).size;
     return Container(
@@ -975,22 +983,26 @@ base class _PaneItemExpanderItem
 
 extension _ItemsExtension on List<NavigationPaneItem> {
   /// Get the all the item offets in this list
-  List<Offset> _getPaneItemsOffsets(
+  Iterable<Offset> _getPaneItemsOffsets(
     GlobalKey<State<StatefulWidget>> paneKey,
   ) {
     return map((e) {
       // Gets the item global position
       final itemContext = e.itemKey.currentContext;
-      if (itemContext == null) return Offset.zero;
+      if (itemContext == null || !itemContext.mounted) return Offset.zero;
       final box = itemContext.findRenderObject()! as RenderBox;
       final globalPosition = box.localToGlobal(Offset.zero);
       // And then convert it to the local position
       final paneContext = paneKey.currentContext;
-      if (paneContext == null) return Offset.zero;
+      if (paneContext == null || !paneContext.mounted) return Offset.zero;
       final paneBox = paneKey.currentContext!.findRenderObject() as RenderBox;
       final position = paneBox.globalToLocal(globalPosition);
       return position;
-    }).toList();
+    })
+        // Calling .toList here ensures that all the pane items positions are
+        // calculated. Without it, a lazy Iterable would be returned resulting
+        // in RenderObject bugs due to the widget not being in the tree
+        .toList();
   }
 }
 

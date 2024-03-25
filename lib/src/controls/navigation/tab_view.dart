@@ -12,6 +12,11 @@ const double _kMaxTileWidth = 240.0;
 const double _kTileHeight = 34.0;
 const double _kButtonWidth = 32.0;
 
+typedef TabItemOnSecondaryTap = void Function(
+  _TabViewState tabViewState,
+  TapDownDetails details,
+);
+
 enum CloseButtonVisibilityMode {
   /// The close button will never be visible
   never,
@@ -72,6 +77,7 @@ class TabView extends StatefulWidget {
     this.header,
     this.footer,
     this.closeDelayDuration = const Duration(milliseconds: 400),
+    this.onSecondaryTapUp,
   });
 
   /// The index of the tab to be displayed
@@ -103,6 +109,11 @@ class TabView extends StatefulWidget {
   /// Called when the tabs are reordered. If null,
   /// reordering is disabled. It's disabled by default.
   final ReorderCallback? onReorder;
+
+  /// Called when the tab is secondary tapped.
+  ///
+  /// Used to show a context menu, for example.
+  final TabItemOnSecondaryTap? onSecondaryTapUp;
 
   /// The min width a tab can have. Must not be negative.
   ///
@@ -311,6 +322,8 @@ class _TabViewState extends State<TabView> {
     );
     final Widget child = GestureDetector(
       onTertiaryTapUp: (_) => close(index),
+      onSecondaryTapDown: (details) =>
+          widget.onSecondaryTapUp?.call(this, details),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Flexible(
           fit: widget.tabWidthBehavior == TabWidthBehavior.equal

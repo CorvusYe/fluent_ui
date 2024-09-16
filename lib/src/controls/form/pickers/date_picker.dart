@@ -332,7 +332,7 @@ class _DatePickerState extends State<DatePicker> {
           await open();
         },
         builder: (context, states) {
-          if (states.isDisabled) states = <ButtonStates>{};
+          if (states.isDisabled) states = <WidgetState>{};
           const divider = Divider(
             direction: Axis.vertical,
             style: DividerThemeData(
@@ -481,8 +481,8 @@ class __DatePickerContentPopUpState extends State<_DatePickerContentPopUp> {
     year ??= DateTime.now().year;
     month ??= DateTime.now().month;
     return DateTimeRange(
-      start: DateTime(year, month),
-      end: DateTime(year, month + 1),
+      start: DateTime.utc(year, month),
+      end: DateTime.utc(year, month + 1),
     ).duration.inDays;
   }
 
@@ -504,11 +504,13 @@ class __DatePickerContentPopUpState extends State<_DatePickerContentPopUp> {
       });
 
       final monthIndex = monthsInCurrentYear.toList().indexOf(localDate.month);
-      if (widget.monthController.selectedItem != monthIndex) {
+      if (widget.showMonth &&
+          widget.monthController.selectedItem != monthIndex) {
         widget.monthController.jumpToItem(monthIndex);
       }
 
-      if (widget.dayController.selectedItem != localDate.day - 1) {
+      if (widget.showDay &&
+          widget.dayController.selectedItem != localDate.day - 1) {
         widget.dayController.jumpToItem(localDate.day - 1);
       }
     });

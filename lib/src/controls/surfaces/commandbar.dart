@@ -554,7 +554,7 @@ class CommandBarButton extends CommandBarItem {
           focusNode: focusNode,
           autofocus: autofocus,
           style: ButtonStyle(
-            backgroundColor: ButtonState.resolveWith((states) {
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
               final theme = FluentTheme.of(context);
               if (selected) {
                 return ButtonThemeData.buttonColor(

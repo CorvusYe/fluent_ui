@@ -15,6 +15,7 @@ const double _kButtonWidth = 32.0;
 typedef TabItemOnSecondaryTap = void Function(
   _TabViewState tabViewState,
   TapDownDetails details,
+  int index,
 );
 
 enum CloseButtonVisibilityMode {
@@ -78,10 +79,9 @@ class TabView extends StatefulWidget {
     this.tabWidthBehavior = TabWidthBehavior.equal,
     this.header,
     this.footer,
-    this.closeDelayDuration = const Duration(milliseconds: 400),
-    this.onSecondaryTapUp,
     this.stripBuilder,
     this.closeDelayDuration = const Duration(seconds: 1),
+    this.onSecondaryTapUp,
   });
 
   /// The index of the tab to be displayed
@@ -364,7 +364,7 @@ class _TabViewState extends State<TabView> {
     final Widget child = GestureDetector(
       onTertiaryTapUp: (_) => close(index),
       onSecondaryTapDown: (details) =>
-          widget.onSecondaryTapUp?.call(this, details),
+          widget.onSecondaryTapUp?.call(this, details, index),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Flexible(
           fit: widget.tabWidthBehavior == TabWidthBehavior.equal

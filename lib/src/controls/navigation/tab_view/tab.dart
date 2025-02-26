@@ -23,6 +23,12 @@ enum TabWidthBehavior {
   compact,
 }
 
+typedef TabItemOnSecondaryTap = void Function(
+  _TabViewState tabViewState,
+  TapDownDetails details,
+  int index,
+);
+
 /// The data that is passed to the [Tab] widget.
 ///
 /// This is used to determine the state of the tab, such as if it's selected,

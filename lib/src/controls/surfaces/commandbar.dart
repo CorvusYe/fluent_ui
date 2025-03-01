@@ -397,7 +397,7 @@ class CommandBarState extends State<CommandBar> {
       w = listBuilder.call(children: [Expanded(child: w)]);
     }
     w = Container(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.all(0.0),
       decoration: ShapeDecoration(
         color: secondaryFlyoutController.isOpen
             ? theme.menuColor.withValues(alpha: kMenuColorOpacity)

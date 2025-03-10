@@ -161,6 +161,9 @@ class CommandBar extends StatefulWidget {
   /// and [crossAxisAlignment] to [CrossAxisAlignment.start].
   final Axis direction;
 
+  /// The padding around [child]
+  final EdgeInsetsGeometry padding;
+
   /// Creates a command bar.
   const CommandBar({
     super.key,
@@ -174,6 +177,7 @@ class CommandBar extends StatefulWidget {
     CrossAxisAlignment? crossAxisAlignment,
     this.overflowItemAlignment = MainAxisAlignment.end,
     this.direction = Axis.horizontal,
+    this.padding = const EdgeInsets.all(4.0),
   })  : _isExpanded = overflowBehavior != CommandBarOverflowBehavior.noWrap,
         isCompact = isCompact ?? direction == Axis.vertical,
         crossAxisAlignment = crossAxisAlignment ??
@@ -397,7 +401,7 @@ class CommandBarState extends State<CommandBar> {
       w = listBuilder.call(children: [Expanded(child: w)]);
     }
     w = Container(
-      padding: const EdgeInsets.all(0.0),
+      padding: widget.padding,
       decoration: ShapeDecoration(
         color: secondaryFlyoutController.isOpen
             ? theme.menuColor.withValues(alpha: kMenuColorOpacity)

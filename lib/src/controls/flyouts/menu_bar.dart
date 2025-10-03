@@ -48,11 +48,25 @@ class MenuBarItem with Diagnosticable {
 class MenuBar extends StatefulWidget with Diagnosticable {
   final List<MenuBarItem> items;
 
+  /// The padding of each item in the menu bar.
+  final EdgeInsetsDirectional barPadding;
+
+  /// The margin around the entire menu bar.
+  final EdgeInsetsDirectional barMargin;
+
+  /// The border radius of the menu bar items.
+  final BorderRadius barBorderRadius;
+
   /// Creates a fluent-styled menu bar.
   MenuBar({
     super.key,
     required this.items,
-  }) : assert(items.isNotEmpty, 'items must not be empty');
+    this.barPadding =
+        const EdgeInsetsDirectional.symmetric(horizontal: 10.0, vertical: 4.0),
+    this.barMargin = const EdgeInsetsDirectional.all(4.0),
+    BorderRadius? barBorderRadius,
+  })  : barBorderRadius = barBorderRadius ?? BorderRadius.circular(4.0),
+        assert(items.isNotEmpty, 'items must not be empty');
 
   @override
   State<MenuBar> createState() => MenuBarState();
@@ -61,17 +75,15 @@ class MenuBar extends StatefulWidget with Diagnosticable {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(IterableProperty<MenuBarItem>('items', items));
+    properties.add(
+        DiagnosticsProperty<EdgeInsetsDirectional>('barPadding', barPadding));
+    properties.add(
+        DiagnosticsProperty<EdgeInsetsDirectional>('barMargin', barMargin));
   }
 }
 
 class MenuBarState extends State<MenuBar> {
   final _controller = FlyoutController();
-
-  static const barPadding = EdgeInsetsDirectional.symmetric(
-    horizontal: 10.0,
-    vertical: 4.0,
-  );
-  static const barMargin = EdgeInsetsDirectional.all(4.0);
 
   final Map<MenuBarItem, GlobalKey> _keys = {};
   GlobalKey? _keyOf(MenuBarItem item) {
@@ -129,7 +141,7 @@ class MenuBarState extends State<MenuBar> {
 
     _locked = false;
     _currentOpenItem = item;
-    final resolvedBarMargin = barMargin.resolve(textDirection);
+    final resolvedBarMargin = widget.barMargin.resolve(textDirection);
     final future = _controller.showFlyout(
       buildTarget: true,
       placementMode: FlyoutPlacementMode.auto,
@@ -214,8 +226,8 @@ class MenuBarState extends State<MenuBar> {
       child: Container(
         height: 40.0,
         padding: EdgeInsetsDirectional.only(
-          top: barMargin.top,
-          bottom: barMargin.bottom,
+          top: widget.barMargin.top,
+          bottom: widget.barMargin.bottom,
         ),
         // align to the center so that the flyout is directly connected to the buttons
         // not the bar.
@@ -240,8 +252,8 @@ class MenuBarState extends State<MenuBar> {
                       final isSelected = _currentOpenItem == item;
                       return HoverButton(
                         margin: EdgeInsetsDirectional.only(
-                          start: barMargin.start,
-                          end: barMargin.end,
+                          start: widget.barMargin.start,
+                          end: widget.barMargin.end,
                         ),
                         onPressed: () {
                           _locked = false;
@@ -266,11 +278,11 @@ class MenuBarState extends State<MenuBar> {
                           return FocusBorder(
                             focused: states.isFocused,
                             child: Container(
-                              padding: barPadding,
+                              padding: widget.barPadding,
                               decoration: BoxDecoration(
                                 color: HyperlinkButton.backgroundColor(theme)
                                     .resolve(states),
-                                borderRadius: BorderRadius.circular(4.0),
+                                borderRadius: widget.barBorderRadius,
                               ),
                               child: Text(item.title),
                             ),

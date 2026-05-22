@@ -957,7 +957,11 @@ class _TreeViewItem extends StatelessWidget {
         onPressed: selectionMode == TreeViewSelectionMode.single
             ? () {
                 onSelect();
-                onInvoked(TreeViewItemInvokeReason.pressed);
+                if (item.isExpandable) {
+                  onExpandToggle();
+                } else {
+                  onInvoked(TreeViewItemInvokeReason.pressed);
+                }
                 FocusScope.of(context).unfocus(
                   disposition: UnfocusDisposition.previouslyFocusedChild,
                 );
@@ -1048,7 +1052,10 @@ class _TreeViewItem extends StatelessWidget {
                     else
                       GestureDetector(
                         behavior: HitTestBehavior.deferToChild,
-                        onTap: onExpandToggle,
+                        onTap: () {
+                          onExpandToggle();
+                          onSelect();
+                        },
                         child: Container(
                           // The hitbox for the chevron is three times the
                           // chevron's (max) width.
